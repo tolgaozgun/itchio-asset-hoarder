@@ -4,11 +4,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const warning = document.getElementById('warning');
 
     if (tab.url && tab.url.includes('itch.io')) {
-        saveBtn.style.display = 'block';
-        warning.style.display = 'none';
+        // Check if it's a valid asset page (has .view_game_page)
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            function: () => !!document.querySelector('.view_game_page')
+        }, (results) => {
+            if (results && results[0] && results[0].result) {
+                saveBtn.style.display = 'block';
+                warning.style.display = 'none';
+            } else {
+                saveBtn.style.display = 'none';
+                warning.style.display = 'block';
+                warning.textContent = "Not an asset page";
+            }
+        });
     } else {
         saveBtn.style.display = 'none';
         warning.style.display = 'block';
+        // warning.textContent is likely "Not an itch.io page" by default in HTML
     }
 });
 
